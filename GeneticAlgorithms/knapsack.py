@@ -10,6 +10,7 @@ from numpy import ndarray
 import numpy as np
 
 NUMBER_OF_ITEMS = 7
+KNAPSACK_CAPACITY = 32
 #-------------------------------------------------------------------------------
 
 class Item:
@@ -45,14 +46,17 @@ class Knapsack:
     def __str__(self):
         return str(self.items)
 
+    __repr__ = __str__
+
 
 #-------------------------------------------------------------------------------
                                 #GENETIC ALGORITHMS
 
 class Population:
 
-    def __init__(self):
-        pass
+    def __init__(self, population, population_number):
+        self.population = population
+        self.number = population_number
 
     def fitness():
         pass
@@ -66,29 +70,47 @@ class Population:
     def add_chromosome(self, chromosome):
         pass
 
+    def __str__(self):
+        result = "\n\n        ############## Population %d ##############\n" %(self.number)
+        for item in self.population:
+            result += str(item) + "\n"
+        return result;
+
+
+    __repr__ = __str__
+
 
 class Solution:
 
     def __init__(self):
-        self.populations = np.zeros((NUMBER_OF_ITEMS,NUMBER_OF_ITEMS))
+        self.populations = []
 
-    def add_population(self):
-        pass
+    def add_population(self,population):
+        self.populations.append(population)
 
     def statistics(self):
         pass
+
+    def __str__(self):
+        return str(self.populations)
 
 
 
 #-------------------------------------------------------------------------------
 
-
-
-def init_population(population):
+def init_population(itemsArray):
     #Initialize the first population by randomly generating a population of Size chromosomes
-    population[0,0,0] = 1
-    population[0,0,1] = 1
-    population[0,1,1] = 1
+
+    #Initialization of the knapsack with the default items
+    knapsack = Knapsack(KNAPSACK_CAPACITY, itemsArray)
+    knapsack_population = np.array([Knapsack(KNAPSACK_CAPACITY,itemsArray) for i in range(NUMBER_OF_ITEMS)])
+    for knapsack in knapsack_population:
+        for i in range(NUMBER_OF_ITEMS):
+            random_value = random.randint(1,5)
+            knapsack.items[i] = random_value
+
+    return knapsack_population
+
 
 #-------------------------------------------------------------------------------
 
@@ -96,7 +118,6 @@ def init_population(population):
 #Size stands for the number of chromosomes in the population
 #numberOfItems stands for the number of items that might be included on the knapsack
 #Third dimension is used to form a new generation of chromosomes
-
 
 #Initialization of the items that will be put into the knapsack
 item1 =  Item(1,2)
@@ -106,18 +127,13 @@ item4 =  Item(7,9)
 item5 =  Item(11,13)
 item6 =  Item(13,9)
 item7 =  Item(17,11)
-
 itemsArray = []
 itemsArray.extend([item1, item2, item3, item4, item5, item6, item7])
 
-#Initialization of the knapsack with the default items
-knapsack = Knapsack(32, itemsArray)
+#Initialize the first population
+initial_population = Population(init_population(itemsArray), 1)
 
-
-knapsack.add_item(1,5);
-
-print(knapsack.fitness());
-
-#Initialize the population
-# init_population(population)
-# print (population)
+#Add initial population to the Solution
+solution = Solution()
+solution.add_population(initial_population)
+print (solution)
