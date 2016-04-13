@@ -55,11 +55,20 @@ class Knapsack:
 class Population:
 
     def __init__(self, population, population_number):
-        self.population = population
+        if (population != None):
+            self.population = population
+        else:
+            self.population = []
         self.number = population_number
 
-    def fitness():
-        pass
+    def select_random_chromosomes(self):
+        rnd1 = random.randint(0,NUMBER_OF_ITEMS)
+        rnd2 = random.randint(0,NUMBER_OF_ITEMS)
+        selected_chromosomes = []
+        selected_chromosomes.append(self.population[rnd1])
+        selected_chromosomes.append(self.population[rnd2])
+        return selected_chromosomes
+
 
     def mutate():
         pass
@@ -68,7 +77,8 @@ class Population:
         pass
 
     def add_chromosome(self, chromosome):
-        pass
+        self.population.append(chromosome)
+
 
     def __str__(self):
         result = "\n\n        ############## Population %d ##############\n" %(self.number)
@@ -91,6 +101,25 @@ class Solution:
     def statistics(self):
         pass
 
+    def population_percentage(self, current):
+        percentage_dictionary = {}
+        for knapsack in self.populations[current].population:
+            if (len(percentage_dictionary) > 2):
+                return False
+            else:
+                fitness = knapsack.fitness()
+                if (fitness in percentage_dictionary ):
+                    percentage_dictionary[fitness] += 1
+                else:
+                    percentage_dictionary[fitness] = 0
+        return True
+
+
+        average = currentValue / float(NUMBER_OF_ITEMS)
+        percentage = (currentValue / average) * 100
+        return percentage
+
+
     def __str__(self):
         return str(self.populations)
 
@@ -100,15 +129,11 @@ class Solution:
 
 def init_population(itemsArray):
     #Initialize the first population by randomly generating a population of Size chromosomes
-
-    #Initialization of the knapsack with the default items
-    knapsack = Knapsack(KNAPSACK_CAPACITY, itemsArray)
     knapsack_population = np.array([Knapsack(KNAPSACK_CAPACITY,itemsArray) for i in range(NUMBER_OF_ITEMS)])
     for knapsack in knapsack_population:
         for i in range(NUMBER_OF_ITEMS):
-            random_value = random.randint(1,5)
+            random_value = random.randint(0,2)
             knapsack.items[i] = random_value
-
     return knapsack_population
 
 
@@ -136,4 +161,19 @@ initial_population = Population(init_population(itemsArray), 1)
 #Add initial population to the Solution
 solution = Solution()
 solution.add_population(initial_population)
-print (solution)
+
+##Iterate until the poblation is 90% similar
+currentPopulation = 0
+
+
+while (not(solution.population_percentage(currentPopulation))):
+
+    #select chromosomes from the current population
+    print(solution.populations[currentPopulation].select_random_chromosomes())
+    break
+    #generate new population
+
+    #cross_over
+    #mutation
+
+#print the solution
