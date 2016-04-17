@@ -15,6 +15,7 @@ CROSS_OVER_PROBABILITY = 0.3
 MUTATION_PROBABILITY = 0.01
 #-------------------------------------------------------------------------------
 
+#Item class which has the volume and benefit a Knapsack can include onto it
 class Item:
     def __init__(self, volume, benefit):
         self.volume = volume
@@ -29,6 +30,8 @@ class Item:
 
 #-------------------------------------------------------------------------------
 
+#Knapsack class, basic class of the program, it has a capacity and an itemsArray which
+#will be the number of items included
 class Knapsack:
     def __init__(self, capacity, itemsArray):
         self.capacity = capacity
@@ -58,15 +61,17 @@ class Knapsack:
 #-------------------------------------------------------------------------------
                                 #GENETIC ALGORITHMS
 
+#Population class, it has one of the main functionality of our program
+#it has the following attributes:
+#population: Means the population of Knapsacks i.e [[1,0,0,2,1] [2,1,3,1,0] ..... [0,1,2,1,3]]
+#population_number which is the current population in the iterations
 class Population:
 
     def __init__(self, population, population_number):
         self.number = population_number
         self.roulette = []
         self.sum_of_fitness = 0
-        # self.new_selection = []
         self.new_selection = np.array([Knapsack(KNAPSACK_CAPACITY,itemsArray) for i in range(NUMBER_OF_ITEMS)])
-        # self.new_population = []
         self.new_population = np.array([Knapsack(KNAPSACK_CAPACITY,itemsArray) for i in range(NUMBER_OF_ITEMS)])
 
         if (population != None):
@@ -74,6 +79,8 @@ class Population:
         else:
             self.population = []
 
+#Roulette is the default method for selection, it will calculate the selection of chromosomes for the next generation
+#and to use them in the crossover and mutation
     def calculate_roulette(self):
         for knapsack in self.population:
             fitness = knapsack.fitness()
@@ -83,7 +90,8 @@ class Population:
                 self.roulette.append(fitness/self.sum_of_fitness * 100)
         return True
 
-
+#Random chromosomes which will be selected with the probability that was imposed by the roulette Algorithm
+#this way we can get a new_Selection attribute into the population class and work with it for cross over and mutation
     def select_random_chromosomes(self):
         self.calculate_roulette()
         selection = 0
@@ -96,13 +104,14 @@ class Population:
                     break
         return self.new_selection
 
-
+#Will mutate a gene, either to sum it or to diminish it
     def mutate(self,gene):
         if (gene > 0):
             return gene-1
         else:
             return gene+1
 
+#This method determines where will the cross over occur
     def cross_over_position(self):
         position = 0
         crossed = False
@@ -115,6 +124,9 @@ class Population:
                 return position
             position += 1
 
+#Auxiliar method for cross over, this will make the cross over within a chromosome
+#It takes the chromosome1, chromosome2 and the position where the cross over will occur
+#also in this method, the mutation is handled everytime a bit is shifted to the new chromosome
     def cross_over_aux(self,chromosome1,chromosome2,position):
         cross_over = 0
         crossed = False
@@ -141,6 +153,8 @@ class Population:
         return new_chromosome
 
 
+#Main cross_over, this will insert into the new_population (i.e new generation)
+#the cross_over and mutated items of the knapsacks
     def cross_over(self):
         index = 0
         if (NUMBER_OF_ITEMS % 2 != 0):
@@ -163,6 +177,7 @@ class Population:
             index += 2
         return self.new_population
 
+#Method that adds a chromosome
     def add_chromosome(self, chromosome):
         self.population.append(chromosome)
 
@@ -190,23 +205,9 @@ class Solution:
     def __init__(self):
         self.populations = []
 
+#Method that adds a new population to the solution
     def add_population(self,population):
         self.populations.append(population)
-
-    def population_percentage(self, current):
-        percentage_dictionary = {}
-        for knapsack in self.populations[current].population:
-            if (len(percentage_dictionary) > 2):
-                return False
-            else:
-                fitness = knapsack.fitness()
-                if (fitness in percentage_dictionary ):
-                    percentage_dictionary[fitness] += 1
-                else:
-                    percentage_dictionary[fitness] = 0
-        average = currentValue / float(NUMBER_OF_ITEMS)
-        percentage = (currentValue / average) * 100
-        return percentage
 
     def __str__(self):
         return str(self.populations)
