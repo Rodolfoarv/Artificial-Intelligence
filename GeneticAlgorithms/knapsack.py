@@ -67,10 +67,6 @@ class Population:
         else:
             self.population = []
 
-    def roulette(self):
-        pass
-
-
     def calculate_roulette(self):
         for knapsack in self.population:
             fitness = knapsack.fitness()
@@ -86,6 +82,14 @@ class Population:
     def select_random_chromosomes(self):
         #Select the chromosomes for the crossover and mutation
         selected_chromosomes = []
+        self.calculate_roulette()
+        new_selection = 0
+        while new_selection < NUMBER_OF_ITEMS:
+            for i in range(NUMBER_OF_ITEMS):
+                random_selection = random.randint(0,100)
+                if (0 <= random_selection <= self.roulette[i]):
+                    new_selection += 1
+                    selected_chromosomes.append(self.population[i])
         return selected_chromosomes
 
 
@@ -158,11 +162,6 @@ def init_population(itemsArray):
 
 #-------------------------------------------------------------------------------
 
-#populatoin array, tridimensional matrix, denoted by [size][numberOfItems][2]
-#Size stands for the number of chromosomes in the population
-#numberOfItems stands for the number of items that might be included on the knapsack
-#Third dimension is used to form a new generation of chromosomes
-
 #Initialization of the items that will be put into the knapsack
 item1 =  Item(1,2)
 item2 =  Item(2,4)
@@ -186,12 +185,14 @@ currentPopulation = 0
 
 while (not(solution.population_percentage(currentPopulation))):
     #select chromosomes from the current population to apply cross_over and mutation
+    # solution.populations[currentPopulation].select_random_chromosomes()
     print(solution.populations[currentPopulation].select_random_chromosomes())
     break
-    #generate new population
-
 
     #cross_over
+
+
     #mutation
+    #generate new population
 
 #print the solution
