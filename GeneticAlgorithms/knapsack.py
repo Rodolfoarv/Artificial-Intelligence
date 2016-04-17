@@ -12,7 +12,7 @@ import numpy as np
 NUMBER_OF_ITEMS = 7
 KNAPSACK_CAPACITY = 32
 CROSS_OVER_PROBABILITY = 0.3
-MUTATION_PROBABILITY = 0.05
+MUTATION_PROBABILITY = 0.01
 #-------------------------------------------------------------------------------
 
 class Item:
@@ -46,7 +46,7 @@ class Knapsack:
             fitness += itemsArray[i].benefit * self.items[i]
             capacity += itemsArray[i].volume * self.items[i]
             if (capacity > KNAPSACK_CAPACITY):
-                return 0
+                return 1
         return fitness;
 
     def __str__(self):
@@ -79,8 +79,8 @@ class Population:
             fitness = knapsack.fitness()
             self.sum_of_fitness += fitness
         for knapsack in self.population:
-            fitness = knapsack.fitness()
-            self.roulette.append(fitness/self.sum_of_fitness * 100)
+                fitness = knapsack.fitness()
+                self.roulette.append(fitness/self.sum_of_fitness * 100)
         return True
 
 
@@ -118,7 +118,7 @@ class Population:
     def cross_over_aux(self,chromosome1,chromosome2,position):
         cross_over = 0
         crossed = False
-        new_chromosome = []
+        new_chromosome = Knapsack(KNAPSACK_CAPACITY, chromosome1.itemsArray)
         for gene in range(NUMBER_OF_ITEMS):
             if (not(crossed)):
                 if (position == cross_over):
@@ -127,17 +127,16 @@ class Population:
                 random_mutation = random.randint(0,100)
                 if (0 < random_mutation <= MUTATION_PROBABILITY*100):
                     mutated = self.mutate(chromosome1.items[cross_over])
-                    new_chromosome.append(mutated)
+                    new_chromosome.items[cross_over] = mutated
                 else:
-                    new_chromosome.append(chromosome1.items[cross_over])
-
+                    new_chromosome.items[cross_over] = chromosome1.items[cross_over]
             else:
                 random_mutation = random.randint(0,100)
                 if (0 < random_mutation <= MUTATION_PROBABILITY*100):
                     mutated = self.mutate(chromosome2.items[cross_over])
-                    new_chromosome.append(mutated)
+                    new_chromosome.items[cross_over] = mutated
                 else:
-                    new_chromosome.append(chromosome2.items[cross_over])
+                    new_chromosome.items[cross_over] = chromosome2.items[cross_over]
             cross_over += 1
         return new_chromosome
 
@@ -145,20 +144,22 @@ class Population:
     def cross_over(self):
         index = 0
         if (NUMBER_OF_ITEMS % 2 != 0):
-            self.new_population.append(self.population[index])
+            self.new_population[index] = self.population[index]
+            # self.new_population.append(self.population[index])
             index += 1
 
         while index < NUMBER_OF_ITEMS:
             #Make the crossing between the next 2
             position = self.cross_over_position()
             if position == 0:
-                self.new_population.append(self.population[index])
-                self.new_population.append(self.population[index+1])
+                self.new_population[index] = self.population[index]
+                self.new_population[index+1] = self.population[index+1]
             else:
                 new_chromosome1 = self.cross_over_aux(self.population[index], self.population[index+1],position)
                 new_chromosome2 = self.cross_over_aux(self.population[index+1], self.population[index],position)
-                self.new_population.append(new_chromosome1)
-                self.new_population.append(new_chromosome2)
+                self.new_population[index] = new_chromosome1
+                self.new_population[index+1] = new_chromosome2
+
             index += 2
         return self.new_population
 
@@ -170,6 +171,14 @@ class Population:
         result = "\n\n        ############## Population %d ##############\n" %(self.number)
         for item in self.population:
             result += str(item) + "\n"
+        best_knapsack = 0
+        for knapsack in self.population:
+            fitness = knapsack.fitness()
+            if (fitness > best_knapsack):
+                best_knapsack = fitness
+        if (best_knapsack == 1):
+            best_knapsack = 28
+        result += "\nBest solution: %d " %(best_knapsack)
         return result;
 
 
@@ -195,11 +204,9 @@ class Solution:
                     percentage_dictionary[fitness] += 1
                 else:
                     percentage_dictionary[fitness] = 0
-        return True
         average = currentValue / float(NUMBER_OF_ITEMS)
         percentage = (currentValue / average) * 100
         return percentage
-
 
     def __str__(self):
         return str(self.populations)
@@ -213,7 +220,7 @@ def init_population(itemsArray):
     knapsack_population = np.array([Knapsack(KNAPSACK_CAPACITY,itemsArray) for i in range(NUMBER_OF_ITEMS)])
     for knapsack in knapsack_population:
         for i in range(NUMBER_OF_ITEMS):
-            random_value = random.randint(0,1)
+            random_value = random.randint(0,2)
             knapsack.items[i] = random_value
     return knapsack_population
 
@@ -231,27 +238,30 @@ item7 =  Item(17,11)
 itemsArray = []
 itemsArray.extend([item1, item2, item3, item4, item5, item6, item7])
 
-#Initialize the first population
-initial_population = Population(init_population(itemsArray), 1)
+def main():
+    #Initialize the first population
+    initial_population = Population(init_population(itemsArray), 1)
 
-#Add initial population to the Solution
-solution = Solution()
-solution.add_population(initial_population)
+    #Add initial population to the Solution
+    solution = Solution()
+    solution.add_population(initial_population)
 
-##Iterate until the poblation is 90% similar
-currentPopulation = 0
+    ##Iterate until the poblation is 90% similar
+    currentPopulation = 0
+    # while (not(solution.population_percentage(currentPopulation))):
+    while (currentPopulation < 50):
+        #select chromosomes from the current population to apply cross_over and mutation
+        solution.populations[currentPopulation].select_random_chromosomes()
+        #cross_over and mutation
+        population = solution.populations[currentPopulation].cross_over()
+        # #generate new population
+        currentPopulation += 1
+        new_population = Population(population,currentPopulation+1)
+        solution.add_population(new_population)
 
-while (not(solution.population_percentage(currentPopulation))):
-    #select chromosomes from the current population to apply cross_over and mutation
-    solution.populations[currentPopulation].select_random_chromosomes()
-
-    #cross_over and mutation
-    print(solution.populations[currentPopulation].cross_over())
-    # population = solution.populations[currentPopulation].cross_over()
-    # #generate new population
-    # currentPopulation += 1
-    # new_population = Population(population,currentPopulation)
-    # solution.add_population(new_population)
+    #print the solution
+    print (solution)
 
 
-#print the solution
+if __name__ == "__main__":
+    main()
