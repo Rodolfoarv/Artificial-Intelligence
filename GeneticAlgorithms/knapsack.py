@@ -64,8 +64,10 @@ class Population:
         self.number = population_number
         self.roulette = []
         self.sum_of_fitness = 0
-        self.new_selection = []
-        self.new_population = []
+        # self.new_selection = []
+        self.new_selection = np.array([Knapsack(KNAPSACK_CAPACITY,itemsArray) for i in range(NUMBER_OF_ITEMS)])
+        # self.new_population = []
+        self.new_population = np.array([Knapsack(KNAPSACK_CAPACITY,itemsArray) for i in range(NUMBER_OF_ITEMS)])
 
         if (population != None):
             self.population = population
@@ -76,25 +78,22 @@ class Population:
         for knapsack in self.population:
             fitness = knapsack.fitness()
             self.sum_of_fitness += fitness
-
         for knapsack in self.population:
             fitness = knapsack.fitness()
             self.roulette.append(fitness/self.sum_of_fitness * 100)
-
         return True
 
 
     def select_random_chromosomes(self):
-        #Select the chromosomes for the crossover and mutation
-        self.new_selection = []
         self.calculate_roulette()
         selection = 0
         while selection < NUMBER_OF_ITEMS:
             for i in range(NUMBER_OF_ITEMS):
                 random_selection = random.randint(0,100)
                 if (0 <= random_selection <= self.roulette[i]):
+                    self.new_selection[selection] = self.population[i]
                     selection += 1
-                    self.new_selection.append(self.population[i])
+                    break
         return self.new_selection
 
 
@@ -248,11 +247,11 @@ while (not(solution.population_percentage(currentPopulation))):
 
     #cross_over and mutation
     print(solution.populations[currentPopulation].cross_over())
-    population = solution.populations[currentPopulation].cross_over()
-    #generate new population
-    currentPopulation += 1
-    new_population = Population(population,currentPopulation)
-    solution.add_population(new_population)
+    # population = solution.populations[currentPopulation].cross_over()
+    # #generate new population
+    # currentPopulation += 1
+    # new_population = Population(population,currentPopulation)
+    # solution.add_population(new_population)
 
 
 #print the solution
