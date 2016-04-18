@@ -1,8 +1,10 @@
 from deuces import Card, Evaluator, Deck
 import numpy as np
+import random
 
-NUMBER_OF_PLAYERS = 5
-
+NUMBER_OF_PLAYERS = 6
+CROSS_OVER_PROBABILITY = 0.4
+MUTATION_PROBABILITY = 0.01
 
 #-------------------------------------------------------------------------------
 class Player:
@@ -30,6 +32,31 @@ class Population:
         for player_hand in self.population:
             result += str(player_hand) + "\n"
         return result
+
+    def calculate_roulette(self,board):
+        evaluator = Evaluator()
+        for player_hand in self.population:
+            fitness = evaluator._five(player_hand.hand)
+            self.sum_of_fitness += fitness
+
+        #Calculate roulette values
+        for player_hand in self.population:
+            fitness = float(evaluator._five(player_hand.hand))
+            self.roulette.append(fitness/self.sum_of_fitness*100)
+
+        return self.roulette
+
+    def select_random_chromosomes(self,board):
+        self.calculate_roulette(board)
+        selection = 0
+        while selection < NUMBER_OF_PLAYERS:
+            for i in range(NUMBER_OF_PLAYERS):
+                random_selection = random.randint(0,100)
+                if (0 <= random_selection <= self.roulette[i]):
+                    self.new_selection[selection] = self.population[i]
+                    selection += 1
+                    break
+        return self.new_selection
 
     __repr__ = __str__
 
@@ -63,22 +90,22 @@ def initial_population(no_of_players,deck):
 
 def main():
     deck = Deck()
-    board = deck.draw(1)
+    board = deck.draw(5)
     solution = Solution()
     currentPopulation = 0
     #Generate initial population
     #Add the new population to the solution
-    population = initial_population(5,deck)
-    currentPopulation += 1
-    init_pop = Population(population, currentPopulation)
+    population = initial_population(NUMBER_OF_PLAYERS,deck)
+
+    init_pop = Population(population, currentPopulation+1)
     solution.add_population(init_pop)
 
-    # while (currentPopulation < 50):
-        #select chromosomes from the current population to apply cross_over and mutation
-
-
-
-    print (solution)
+    while (currentPopulation < 50):
+        # select chromosomes from the current population to apply cross_over and mutation
+        print(solution.populations[currentPopulation].select_random_chromosomes(board))
+        currentPopulation += 1
+        break
+        print (solution)
 
 
 
