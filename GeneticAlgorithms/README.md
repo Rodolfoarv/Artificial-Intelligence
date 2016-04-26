@@ -1,4 +1,4 @@
-# Mars Explorer Problem
+# Genetic Algorithms
 
 The application uses the following technologies:
 
@@ -11,14 +11,20 @@ The application uses the following technologies:
     sudo apt-get install python3.1
 
     # Run application
-    python3 knapsack.py
+    python3 "program.py"
 
   Once the app is running, you will be able to simulate the single and cooperative aproach.
 
 
 ## Authors
 
-- Rodolfo Andrés Ramírez Valenzuela
+- Coding
+  - Rodolfo Andrés Ramírez Valenzuela
+  - Fernando Gómez Herrera
+
+- Documentation
+
+  - Jonathan Patlán
 
 ## License
 
