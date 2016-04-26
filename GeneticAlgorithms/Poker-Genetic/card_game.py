@@ -1,10 +1,21 @@
+# -*- coding: utf-8 -*-
+#Rodolfo Andrés Ramírez Valenzuela
+#Fernando Gomez
+#Jonathan Patlán
+
+#Card Game
+#Genetic Algorithms
+# 3/04/16
+#Artificial Intelligence
+
+
 from deuces import Card, Evaluator, Deck
 import numpy as np
 import random
 
 NUMBER_OF_PLAYERS = 6
 CROSS_OVER_PROBABILITY = 0.4
-MUTATION_PROBABILITY = 0.01
+MUTATION_PROBABILITY = 0.05
 
 #-------------------------------------------------------------------------------
 class Player:
@@ -86,7 +97,7 @@ class Population:
 
     def mutate(self):
         deck = Deck()
-        card = deck.draw
+        card = deck.draw()
         return card
 
     #Auxiliar method for cross over, this will make the cross over within a chromosome
@@ -106,15 +117,22 @@ class Population:
                 random_mutation = random.randint(0,100)
                 if (0 < random_mutation <= MUTATION_PROBABILITY*100):
                     mutated = self.mutate()
-                    # new_chromosome.hand[cross_over] = mutated
-                    new_chromosome.hand[cross_over] = chromosome1.hand[cross_over]
-
+                    new_chromosome.hand[cross_over] = mutated
+                    # new_chromosome.hand[cross_over] = chromosome1.hand[cross_over]
                 else:
                     new_chromosome.hand[cross_over] = chromosome1.hand[cross_over]
 
 
             else:
-                new_chromosome.hand[cross_over] = chromosome2.hand[cross_over]
+                #Mutation
+                random_mutation = random.randint(0,100)
+                if (0 < random_mutation <= MUTATION_PROBABILITY*100):
+                    mutated = self.mutate()
+                    new_chromosome.hand[cross_over] = mutated
+                        # new_chromosome.hand[cross_over] = chromosome1.hand[cross_over]
+                else:
+                    new_chromosome.hand[cross_over] = chromosome2.hand[cross_over]
+
 
             cross_over += 1
         return new_chromosome
@@ -191,7 +209,7 @@ def main():
         currentPopulation += 1
         pop = Population(new_population, currentPopulation+1)
         solution.add_population(pop)
-        print (solution)
+    print (solution)
 
 
 if __name__ == "__main__":

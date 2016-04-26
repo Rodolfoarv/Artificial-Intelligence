@@ -5,15 +5,15 @@ class LookupTable(object):
     """
     Number of Distinct Hand Values:
 
-    Straight Flush   10 
-    Four of a Kind   156      [(13 choose 2) * (2 choose 1)]
-    Full Houses      156      [(13 choose 2) * (2 choose 1)]
-    Flush            1277     [(13 choose 5) - 10 straight flushes]
-    Straight         10 
-    Three of a Kind  858      [(13 choose 3) * (3 choose 1)]
-    Two Pair         858      [(13 choose 3) * (3 choose 2)]
-    One Pair         2860     [(13 choose 4) * (4 choose 1)]
-    High Card      + 1277     [(13 choose 5) - 10 straights]
+    Straight Flush   2000
+    Four of a Kind   1900     [(13 choose 2) * (2 choose 1)]
+    Full Houses      1500     [(13 choose 2) * (2 choose 1)]
+    Flush            1200     [(13 choose 5) - 10 straight flushes]
+    Straight         500
+    Three of a Kind  300      [(13 choose 3) * (3 choose 1)]
+    Two Pair         200     [(13 choose 3) * (3 choose 2)]
+    One Pair         100     [(13 choose 4) * (4 choose 1)]
+    High Card      + 10     [(13 choose 5) - 10 straights]
     -------------------------
     TOTAL            7462
 
@@ -24,15 +24,15 @@ class LookupTable(object):
     * Royal flush (best hand possible)          => 1
     * 7-5-4-3-2 unsuited (worst hand possible)  => 7462
     """
-    MAX_STRAIGHT_FLUSH  = 10
-    MAX_FOUR_OF_A_KIND  = 166
-    MAX_FULL_HOUSE      = 322 
+    MAX_STRAIGHT_FLUSH  = 7462
+    MAX_FOUR_OF_A_KIND  = 6185
+    MAX_FULL_HOUSE      = 3325
     MAX_FLUSH           = 1599
     MAX_STRAIGHT        = 1609
     MAX_THREE_OF_A_KIND = 2467
-    MAX_TWO_PAIR        = 3325
-    MAX_PAIR            = 6185
-    MAX_HIGH_CARD       = 7462
+    MAX_TWO_PAIR        = 332
+    MAX_PAIR            = 166
+    MAX_HIGH_CARD       = 10
 
     MAX_TO_RANK_CLASS = {
         MAX_STRAIGHT_FLUSH: 1,
@@ -73,7 +73,7 @@ class LookupTable(object):
 
     def flushes(self):
         """
-        Straight flushes and flushes. 
+        Straight flushes and flushes.
 
         Lookup is done on 13 bit integer (2^13 > 7462):
         xxxbbbbb bbbbbbbb => integer hand index
@@ -108,7 +108,7 @@ class LookupTable(object):
             # straight flush, do not add it
             notSF = True
             for sf in straight_flushes:
-                # if f XOR sf == 0, then bit pattern 
+                # if f XOR sf == 0, then bit pattern
                 # is same, and we should not add
                 if not f ^ sf:
                     notSF = False
@@ -140,12 +140,12 @@ class LookupTable(object):
 
         # we can reuse these bit sequences for straights
         # and high cards since they are inherently related
-        # and differ only by context 
+        # and differ only by context
         self.straight_and_highcards(straight_flushes, flushes)
 
     def straight_and_highcards(self, straights, highcards):
         """
-        Unique five card sets. Straights and highcards. 
+        Unique five card sets. Straights and highcards.
 
         Reuses bit sequences from flush calculations.
         """
@@ -181,7 +181,7 @@ class LookupTable(object):
                 product = Card.PRIMES[i]**4 * Card.PRIMES[k]
                 self.unsuited_lookup[product] = rank
                 rank += 1
-        
+
         # 2) Full House
         rank = LookupTable.MAX_FOUR_OF_A_KIND + 1
 
@@ -260,13 +260,13 @@ class LookupTable(object):
         Bit hack from here:
         http://www-graphics.stanford.edu/~seander/bithacks.html#NextBitPermutation
 
-        Generator even does this in poker order rank 
+        Generator even does this in poker order rank
         so no need to sort when done! Perfect.
         """
-        t = (bits | (bits - 1)) + 1 
-        next = t | ((((t & -t) / (bits & -bits)) >> 1) - 1)  
+        t = (bits | (bits - 1)) + 1
+        next = t | ((((t & -t) / (bits & -bits)) >> 1) - 1)
         yield next
         while True:
-            t = (next | (next - 1)) + 1 
+            t = (next | (next - 1)) + 1
             next = t | ((((t & -t) / (next & -next)) >> 1) - 1)
             yield next

@@ -1,4 +1,6 @@
 #Rodolfo Andrés Ramírez Valenzuela
+#Fernando Gomez
+#Jonathan Patlán
 #Knapsack Problem
 #Genetic Algorithms
 # 3/04/16
@@ -12,7 +14,7 @@ import numpy as np
 NUMBER_OF_ITEMS = 7
 KNAPSACK_CAPACITY = 32
 CROSS_OVER_PROBABILITY = 0.3
-MUTATION_PROBABILITY = 0.01
+MUTATION_PROBABILITY = 0.05
 #-------------------------------------------------------------------------------
 
 #Item class which has the volume and benefit a Knapsack can include onto it
@@ -250,7 +252,7 @@ def main():
     ##Iterate until the poblation is 90% similar
     currentPopulation = 0
     # while (not(solution.population_percentage(currentPopulation))):
-    while (currentPopulation < 50):
+    while (currentPopulation < 200):
         #select chromosomes from the current population to apply cross_over and mutation
         solution.populations[currentPopulation].select_random_chromosomes()
         #cross_over and mutation
